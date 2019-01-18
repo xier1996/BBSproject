@@ -1,0 +1,117 @@
+{% extends 'index.html' %}
+{% block title %}
+    <title>个人信息修改</title>
+{%endblock  %}
+{%block page-content %}
+    <div id="app">
+    <form enctype="multipart/form-data">
+        {% csrf_token %}
+        <table class="table table-hover form-group">
+            <thead>
+            <tr>
+                <th>编号</th>
+                <th>项目</th>
+                <th>值</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>0</td>
+                <td>用户名 (不可改)</td>
+                <td><span v-text = "username" class="form-control"></span></td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>修改密码 </td>
+                <td><input type="password" v-model = "password" class="form-control" placeholder="默认为原密码"></input></td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>个性签名 </td>
+                <td><input v-model = "signature" class="form-control"></input></td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>修改头像 </td>
+                <td>
+                    <div class="head_img">
+                       <img :src="userInfo.avatar" style="height: 200px;width: 200px"/>
+                    </div>
+                    <input type="file" accept="image/*" @change="handleFile" class="hiddenInput"/>
+                </td>
+            </tr>
+        </table>
+
+
+    </form>
+        <button @click="submit" class="btn btn-primary">保存修改</button>
+{#        <button @click="submit" class="btn btn-primary">保存修改</button>#}
+    </div>
+{% endblock %}
+{% block vuejs %}
+    <script type="text/javascript">
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            username: '{{ user.username }}',
+            password: null,
+            signature: '{{bbs_user.signature  }}',
+            userInfo: {
+                avatar: '../' + 'upload_imgs/'+ '{{ bbs_user.photo }}'
+            }
+        },
+        methods: {
+            // 打开图片上传
+            uploadHeadImg: function () {
+                this.$el.querySelector('.hiddenInput').click()
+            },
+            // 将头像显示
+            handleFile: function (e) {
+                let $target = e.target || e.srcElement
+                let file = $target.files[0]
+                _fileName = file.name.substring(file.name.lastIndexOf(".") + 1).toLowerCase();
+                if (_fileName !== "png" && _fileName !== "jpg") {
+                        alert("上传图片格式不正确，请重新上传");
+                    }
+                else{
+                    this.file = file
+                    var reader = new FileReader()
+                    reader.onload = (data) => {
+                        let res = data.target || data.srcElement
+                        this.userInfo.avatar = res.result
+                    }
+                    reader.readAsDataURL(file)
+                }
+            },
+            submit(){
+                let formData = new FormData()
+                if(this.password==null ||this.password.length>=6) {
+                    formData.append('username', this.username)
+                    formData.append('password', this.password)
+                    formData.append('signature', this.signature)
+                    formData.append('file', this.file)
+                    $.ajax({
+                        type: 'POST',
+                        url: '/accounts_profile/',
+                        data:formData,
+                        contentType:false,
+                        //取消帮我们格式化数据，是什么就是什么
+                        processData:false,
+                        success:function(data){
+                            location.reload()    //成功刷新界面
+                            alert('修改已成功！')
+                        },
+                    })
+                }
+                else {
+                    alert("用户密码长度必须大于6");
+                    this.password=null
+                }
+
+            },
+            }
+        })
+
+
+    </script>
+{% endblock %}

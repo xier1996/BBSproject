@@ -1,0 +1,47 @@
+{%extends 'index.html'%}
+{% block title %}
+    <title>用户注册</title>
+{%endblock  %}
+
+{%   block page-content%}
+<div>
+
+
+
+{#    提交表单后提示#}
+    <form id="reg" class="form-horizontal" action='/acc_reg/' method='POST'
+          >
+        {% csrf_token %}
+    	<div class="form-group">
+		<label  class="col-sm-1 control-label">{{ form.username.label }}</label>
+        <div class="col-sm-4">
+                    {{ form.username }}<span style='color:red'>{{ form.errors.username.0 }} </span>
+                    </div>
+        </div>
+
+    	<div class="form-group">
+		<label  class="col-sm-1 control-label">{{ form.password.label }}</label>
+            <div class="col-sm-4">
+            {{ form.password }}<span style='color:red'>{{ form.errors.password.0 }} </span>
+            </div>
+        </div>
+    	<div class="form-group">
+		<label  class="col-sm-1 control-label">{{ form.password2.label }}</label>
+            <div class="col-sm-4">
+            {{ form.password2 }}<span style='color:red'>{{ form.errors.password2.0 }} </span>
+            </div>
+        </div>
+{#        <input type='text' name='username' />#}
+{#        <input type='password' name='password' />#}
+        <div class="form-group " >
+        <label  class="col-sm-1 control-label">
+                <input type='submit' value='注册' class="btn-primary" >
+        </label>
+        </div>
+
+{#         <span style='color:red'>{{form.errors}}</span>#}
+
+    </form>
+    {{ msg }}
+</div>
+{%endblock%}

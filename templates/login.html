@@ -1,0 +1,35 @@
+{%extends 'index.html'%}
+{% block title %}
+    <title>用户登陆</title>
+{%endblock  %}
+
+{%   block page-content%}
+<div>
+    <form class="form-horizontal" action='/acc_login/' method='POST'>
+    <div class="form-group">
+            <label for="firstname" class="col-sm-1 control-label">用户名</label>
+            <div class="col-sm-4">
+
+                <input type="text" class="form-control " name='username'  placeholder="用户名" autocomplete="new-username">
+            </div>
+        </div>
+    <div class="form-group">
+            <label  class="col-sm-1 control-label">密码</label>
+            <div class="col-sm-4">
+                <input type="password" class="form-control " name='password' placeholder="密码" autocomplete="new-password">
+            </div>
+        </div>
+    <div class="form-group">
+        <label  class="col-sm-1 control-label">
+            <input class="btn-primary" type='submit' value='Login' />
+        </label>
+        </div>
+{#        <input type='text' name='username' />#}
+{#        <input type='password' name='password' />#}
+{#       #}
+{#        <input type='submit' value='Login' />#}
+
+         <span style='color:red'>{{login_err}}</span>
+    </form>
+</div>
+{%endblock%}

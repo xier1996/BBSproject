@@ -1,0 +1,159 @@
+{%  extends 'index.html' %}
+{% block title %}
+    <title>查看帖子</title>
+{%endblock  %}
+{%  load comments%}
+{% block page-content %}{# 母版 如果不写 会没有内容显示#}
+<div class="contents">
+    <h2>{{ bbs_obj.title }}</h2>
+        <div >
+    <form action="/edit_bbs_detail/" method="POST">
+    {% csrf_token %}
+        {% get_comment_count for bbs_obj as comment_count %}
+        <span class="glyphicon glyphicon-comment">{{comment_count}}</span>
+        <span class="glyphicon glyphicon-eye-open">{{ bbs_obj.view_count }}</span>
+
+<!--编辑功能 -->
+        {% ifequal bbs_user.id bbs_obj.author_id %}
+            <input type="hidden" name="bbs_id" value="{{ bbs_obj.id }}" />
+            <input type="hidden" name="bbs_user_id" value="{{ bbs_user.id}}" />
+
+            <input type="submit" class="btn-primary" value="编辑"  >
+            <p class="pull-right" >最后修改:{{ bbs_obj.update_at }}</p>
+        {% endifequal  %}
+    </form>
+    </div>
+
+    <table style="border: 0px solid transparent" class="table table-hover" >
+    <tbody>
+        <tr >
+            <td style="width: 100px">
+                <p class="text-center"><a href="/userinfo/{{ bbs_obj.author.id }}">{{ bbs_obj.author.user.username }}</a></p>
+                 <img src="/upload_imgs/{{ bbs_obj.author.photo }}" style="width: 100px;height: 100px;">
+            </td>
+            <td style="position:relative;">
+        {{ bbs_obj.content|safe }}
+                                    <div style="position:absolute;  bottom:0;right: 0; ">
+                          {{ bbs_obj.create_at }}
+                    </div>
+            </td>
+        </tr>
+    </tbody>
+    </table>
+
+</div>
+<div  >
+{#  comments的支持语法  #}
+    {% if user.is_authenticated %}
+        {% get_comment_form for bbs_obj as form %}
+        <form action="/sub_comment/" method="POST"  >
+        {% csrf_token %}
+        <textarea cols=100 rows=3 name='comment_content'></textarea>
+        <input type="hidden" name="bbs_id" value="{{ bbs_obj.id }}" />
+{#        <input type="hidden" name="cate_id" value="{{ cate_id}}" />#}
+            <br>
+        <input type="submit" value="提交评论" id="id_submit" />
+        </form>
+    {% else %}
+        <div class="text-center">请先<a href="/login/">登录</a>再评论.</div>
+    {% endif %}
+    {#    直接显示所有评论{% render_comment_list for bbs_obj %}#}
+{#    {% get_comment_list for bbs_obj as comment_list %}#}
+    </div>
+    <table style="  border: 0px solid transparent" class="table   table-hover  " >
+{#    <thead >#}
+{#                <tr>#}
+{#                    <th style="width: 80px">用户</th>#}
+{#                    <th>内容</th>#}
+{#                </tr>#}
+{#    </thead>#}
+    <tbody>
+            {% for comment in page.object_list%}
+                <tr  >
+                    <td style="width: 100px"> <p class="text-center"  ><a href="/userinfo/{{ comment.user.id }}">{{ comment.user.username }}</a> </p>
+                        <img src="/upload_imgs/{{ comment.user.bbs_user.photo }}" style="width: 100px;height: 100px;">
+                    </td>
+
+                <td   style="position:relative;">
+                        {{ comment.comment }}
+                    <div style="position:absolute;  bottom:0;right: 0; ">
+                          {{ comment.submit_date }}
+                    </div>
+
+
+
+
+{#                    <div style="position: relative;bottom: 0;">{{ comment.submit_date }}</div>#}
+                </td>
+                 </tr>
+{#                <tr  >#}
+{#                <td></td><td><p class="pull-right">{{ comment.submit_date }}</p><br></td>#}
+{#                </tr>#}
+            {% endfor %}
+    </tbody>
+    </table>
+
+    {#分页器:html内容拷贝于bootstrap网站-组件-分页#}
+    {# bootstrap是一整套成熟经典的页面组件框架 #}
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            {# 上一页按钮 #}
+            {# 如果有上一页 #}
+            {% if page.has_previous %}
+                <li>
+                    {# 点击超链接,对上一页的页面发起访问 #}
+                    <a href="{% url 'show_comment' bbs_obj.id   page.previous_page_number %}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+            {# 如果没有上一页 #}
+            {% else %}
+                {# 当没有上一页时,阅读bootrap文档得知,对当前li使用disabled样式 #}
+                <li class="disabled">
+                    {# href="#",处于禁用状态的按钮被点击时直接跳转本页 #}
+                    <a href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+
+            {# 页码按钮 #}
+            {# 遍历传入的页码范围 #}
+            {% for p in pagerange %}
+                {# 如果页码=当前页页码 #}
+                {% ifequal p currentpage %}
+                    {# 被选中的页码具有高亮效果,阅读bootrap文档得知,对当前li使用active样式 #}
+                    {# {% url 'app:blogs' p %} 点击页码,对第p页的路由发起访问 #}
+                    <li class="active"><a href="{% url 'show_comment' bbs_obj.id  p%}">{{ p }}</a></li>
+                {% else %}
+                    {# 非当前页页码普通显示 #}
+                    <li><a href="{% url 'show_comment' bbs_obj.id  p %}">{{ p }}</a></li>
+                {% endifequal %}
+            {% endfor %}
+
+
+            {# 下一页按钮 #}
+            {% if page.has_next %}
+                <li>
+                    {# 点击超链接,对下一页的页面发起访问 #}
+                    <a href="{% url 'show_comment' bbs_obj.id page.next_page_number %}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a></li>
+            {% else %}
+                {# 当没有下一页时,阅读bootrap文档得知,对当前li使用disabled样式 #}
+                <li class="disabled">
+                    {# href="#",处于禁用状态的按钮被点击时直接跳转本页 #}
+                    <a href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+{%  endblock %}
+</div>
+
+
+
+</html>

@@ -1,0 +1,58 @@
+{%  extends 'index.html'%}
+{% block title %}
+    <title>发布帖子</title>
+{%endblock  %}
+{% block page-content %}
+
+<!-- Place inside the <head> of your HTML -->
+<script type="text/javascript" src="/static/tinymce/js/tinymce/tinymce.min.js"></script>
+<script type="text/javascript">
+tinymce.init({
+    selector: "textarea",
+    {#路径自动处理成相对路径#}
+    convert_urls: false,
+    theme: "modern",
+    plugins: [
+        "advlist autolink lists link image charmap print preview hr anchor pagebreak",
+        "searchreplace wordcount visualblocks visualchars code fullscreen",
+        "insertdatetime media nonbreaking save table contextmenu directionality",
+        "emoticons template paste textcolor colorpicker textpattern",
+    ],
+
+    toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
+    toolbar2: "print preview media | forecolor backcolor emoticons",
+    image_advtab: true,
+    templates: [
+        {title: 'Test template 1', content: 'Test 1'},
+        {title: 'Test template 2', content: 'Test 2'}
+    ]
+ });
+</script>
+<!-- Place this in the body of the page content -->
+<form method="post" action='/bbs_sub/' id="myform">
+
+ 	<div class="form-group">
+		<label >标题</label>
+		<input type="text" size="64" maxlength ="64" class="form-control" name='title'></input>
+	</div>
+
+    <div class="form-group">
+        <label>内容</label>
+        <textarea   rows="10" name='content'></textarea>
+    </div>
+ 	<div class="form-group">
+    <label >选择板块:</label>
+        <ul class="list-unstyled">
+            <li >
+                <select class="selectpicker" id="sel" >
+                {% for category in bbs_category%}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %} </select>
+            </li >
+            <li >
+                <br>
+                <input class="btn-primary" type="submit" name="button" value="提交" id="button"></li>
+        </ul>
+	</div>
+</form>
+{% endblock %}
