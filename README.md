@@ -9,3 +9,4 @@ python版本 3.6
 板块选择
 分页显示
 
+图片可以在screenshot文件夹预览
